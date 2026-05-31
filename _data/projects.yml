@@ -1,0 +1,44 @@
+- name: GameDudeSynth
+  description: Browser-based synth and MIDI export engine with retro netstalgia visuals and a live WAV player demo.
+  language: JavaScript
+  repo: https://github.com/Jmat50/GameDudeSynth
+  demo: /GameDudeSynth/gamedude-player.html
+  tags:
+    - audio
+    - web
+
+- name: IPTV-DVR
+  description: Lightweight utility to record live streams from M3U playlists or direct URLs using FFmpeg stream copy. Schedule recurring recordings with Windows Task Scheduler.
+  language: Python
+  repo: https://github.com/Jmat50/IPTV-DVR
+  tags:
+    - iptv
+    - ffmpeg
+    - automation
+
+- name: windows-m3u-stream-merger-proxy
+  description: Rebuilt M3U IPTV server in Python and Go with recursive playlist scanning, local M3U file support, and a Windows GUI.
+  language: Go
+  repo: https://github.com/Jmat50/windows-m3u-stream-merger-proxy
+  tags:
+    - iptv
+    - streaming
+    - proxy
+
+- name: masscan-windows
+  description: Scan the open internet in under five minutes for chosen ports. Export results to JSON, SQLite, and other formats.
+  language: Python
+  repo: https://github.com/Jmat50/masscan-windows
+  tags:
+    - networking
+    - security
+    - scanning
+
+- name: FreeSpeech
+  description: Free, functional system-wide text-to-speech reader powered by Microsoft Edge's neural voice engine. Python UI for Windows with a portable core.
+  language: HTML
+  repo: https://github.com/Jmat50/FreeSpeech
+  tags:
+    - accessibility
+    - tts
+    - windows

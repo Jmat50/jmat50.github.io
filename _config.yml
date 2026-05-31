@@ -1,0 +1,14 @@
+title: Jmat50
+description: Open-source projects, tools, and live demos
+url: https://jmat50.github.io
+baseurl: ""
+github_username: jmat50
+
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
