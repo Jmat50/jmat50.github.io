@@ -26,7 +26,6 @@ export class GameDudeMenuScreen extends LitElement {
     this.catalog = new WavCatalog();
     this._bootTimer = null;
     this._blinkTimer = null;
-    this._pendingDrop = null;
     this.showBlink = true;
 
     this.catalog.onEnd = () => this._returnToMenu();
@@ -63,11 +62,6 @@ export class GameDudeMenuScreen extends LitElement {
       if (tracks.length === 0) {
         this.statusText = 'NO TRACKS';
       }
-      if (this._pendingDrop) {
-        const file = this._pendingDrop;
-        this._pendingDrop = null;
-        this.handleDroppedFile(file);
-      }
     }, 1200);
     this._blinkTimer = setInterval(() => {
       this.showBlink = !this.showBlink;
@@ -77,30 +71,11 @@ export class GameDudeMenuScreen extends LitElement {
 
   powerOff() {
     this._clearTimers();
-    this._pendingDrop = null;
     this.catalog.stop(false);
-    this.catalog.clearLocalTracks();
     this.scene = 'off';
     this.tracks = [];
     this.cursor = 0;
     this.statusText = '';
-  }
-
-  handleDroppedFile(file) {
-    if (this.loading || this.scene === 'boot') {
-      this._pendingDrop = file;
-      return true;
-    }
-
-    const ok = this.catalog.playLocalFile(file);
-    if (!ok) return false;
-
-    this.tracks = this.catalog.tracks;
-    this.cursor = 0;
-    this.scene = 'playing';
-    this.elapsed = 0;
-    this.duration = 0;
-    return true;
   }
 
   handleInput(detail) {
@@ -295,8 +270,8 @@ export class GameDudeMenuScreen extends LitElement {
           <div class="title">GAMEDUDESYNTH</div>
           <div class="rule"></div>
           <div class="empty">
-            DRAG .WAV HERE<br />
-            TO PLAY
+            DROP .WAV FILES<br />
+            IN public/demos/
           </div>
         </div>
       `;
@@ -337,7 +312,7 @@ export class GameDudeMenuScreen extends LitElement {
             </div>
           `)}
         </div>
-        <div class="hint">A/START PLAY · B STOP · DROP WAV</div>
+        <div class="hint">A/START PLAY · B STOP</div>
       </div>
     `;
   }
