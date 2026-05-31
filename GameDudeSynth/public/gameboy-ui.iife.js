@@ -2790,17 +2790,31 @@
 
   // src-player/audio/WavCatalog.js
   var import_howler = __toESM(require_howler(), 1);
-  var MANIFEST_URL = "/demos/manifest.json";
-  var FALLBACK_MANIFEST_URL = "/public/demos/manifest.json";
+  var MANIFEST_URL = "./demos/manifest.json";
+  var FALLBACK_MANIFEST_URL = "./public/demos/manifest.json";
+  function humanizeFilename(stem) {
+    return stem.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim().replace(/\b\w/g, (c4) => c4.toUpperCase());
+  }
+  function isWavFile(file) {
+    if (!file) return false;
+    const name = file.name?.toLowerCase() ?? "";
+    if (name.endsWith(".wav")) return true;
+    const type = file.type?.toLowerCase() ?? "";
+    return type === "audio/wav" || type === "audio/x-wav" || type === "audio/wave";
+  }
   var WavCatalog = class {
     constructor() {
-      this.tracks = [];
+      this.manifestTracks = [];
+      this.localTracks = [];
       this.currentHowl = null;
       this.currentIndex = -1;
       this.onEnd = null;
       this.onProgress = null;
       this._progressTimer = null;
       this._startedAt = 0;
+    }
+    get tracks() {
+      return [...this.localTracks, ...this.manifestTracks];
     }
     async loadManifest() {
       let data = null;
@@ -2814,8 +2828,26 @@
         } catch {
         }
       }
-      this.tracks = data?.tracks ?? [];
+      this.manifestTracks = data?.tracks ?? [];
       return this.tracks;
+    }
+    addLocalFile(file) {
+      if (!isWavFile(file)) return -1;
+      const objectUrl = URL.createObjectURL(file);
+      const stem = file.name.replace(/\.wav$/i, "");
+      this.localTracks.unshift({
+        id: `local-${Date.now()}-${stem}`,
+        title: humanizeFilename(stem),
+        url: objectUrl,
+        local: true
+      });
+      return 0;
+    }
+    clearLocalTracks() {
+      for (const track of this.localTracks) {
+        URL.revokeObjectURL(track.url);
+      }
+      this.localTracks = [];
     }
     play(index) {
       this.stop(false);
@@ -2865,7 +2897,13 @@
       return !!this.currentHowl?.playing();
     }
     getCurrentTrack() {
-      return this.currentIndex >= 0 ? this.tracks[this.currentIndex] : null;
+      if (this.currentIndex < 0) return null;
+      return this.tracks[this.currentIndex] ?? null;
+    }
+    playLocalFile(file) {
+      const index = this.addLocalFile(file);
+      if (index < 0) return false;
+      return this.play(index);
     }
     _clearProgress() {
       if (this._progressTimer) {
