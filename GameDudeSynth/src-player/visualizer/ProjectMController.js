@@ -50,7 +50,6 @@ export class ProjectMController {
     this._presetLastSwitchMs = 0;
     this._presetQueueDir = 0;
     this._presetBusy = false;
-    this._presetLabelEl = null;
     this._wasmBase = vendorBaseUrl();
     this._scriptUrl = new URL('projectm.js', this._wasmBase).href;
 
@@ -158,10 +157,6 @@ export class ProjectMController {
     this._setPresetButtonsDisabled(true);
     presetRow.append(prevBtn, nextBtn);
 
-    this._presetLabelEl = document.createElement('p');
-    this._presetLabelEl.className = 'viz-preset-label';
-    this._presetLabelEl.textContent = 'Preset —';
-
     const opacityRow = document.createElement('label');
     opacityRow.className = 'viz-controls-row';
     opacityRow.innerHTML = '<span class="viz-label">Dim</span>';
@@ -183,7 +178,7 @@ export class ProjectMController {
     this._errorEl.className = 'viz-error';
     this._errorEl.hidden = true;
 
-    this.controlsEl.append(toggleWrap, presetRow, this._presetLabelEl, opacityRow, this._errorEl);
+    this.controlsEl.append(toggleWrap, presetRow, opacityRow, this._errorEl);
 
     if (this.enabled) {
       this.enable().catch((err) => this._setError(err.message));
@@ -267,7 +262,6 @@ export class ProjectMController {
 
       this._resize();
       this._setPresetButtonsDisabled(false);
-      this._updatePresetLabel();
       if (this.enabled && this.audioActive) {
         this._startLoop();
       }
@@ -321,27 +315,6 @@ export class ProjectMController {
     }
   }
 
-  _friendlyPresetName(path) {
-    if (!path) return 'Unknown';
-    const base = path.split('/').pop() ?? path;
-    const match = base.match(/^preset_\d{3}_(.+)\.milk$/i);
-    return match ? match[1] : base.replace(/\.milk$/i, '');
-  }
-
-  _updatePresetLabel() {
-    if (!this._presetLabelEl || !this._module) return;
-    try {
-      const count = this._module.ccall('pm_get_preset_count', 'number', [], []);
-      const index = this._module.ccall('pm_get_preset_index', 'number', [], []);
-      const path = this._module.ccall('pm_get_preset_path', 'string', ['number'], [index]);
-      const name = this._friendlyPresetName(path);
-      const slot = count > 0 ? `${index + 1}/${count}` : '—';
-      this._presetLabelEl.textContent = `Preset ${slot}: ${name}`;
-    } catch {
-      this._presetLabelEl.textContent = 'Preset —';
-    }
-  }
-
   _changePreset(direction) {
     if (!this._module || !this._ready || !this.enabled) return;
     const now = performance.now();
@@ -383,7 +356,6 @@ export class ProjectMController {
         this._presetUnlockTimer = null;
         this._presetBusy = false;
         this._setPresetButtonsDisabled(!this.enabled);
-        this._updatePresetLabel();
         if (!this.enabled) return;
 
         // Allow one settle frame before resuming the render loop.
