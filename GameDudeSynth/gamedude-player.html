@@ -4,12 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GameDudeSynth — WAV Player</title>
-  <link rel="stylesheet" href="./src-player/page.css?v=321b638" />
-  <link rel="stylesheet" href="./src-player/visualizer/visualizer.css?v=321b638" />
+  <link rel="stylesheet" href="./src-player/page.css?v=4bfb7ff" />
+  <link rel="stylesheet" href="./src-player/visualizer/visualizer.css?v=4bfb7ff" />
 </head>
 <body>
   <div id="projectm-host" class="is-disabled" aria-hidden="true"></div>
   <!-- Inline position fallback: without visualizer.css, controls sit in document flow (top-center), not top-right. -->
+  <div id="fullscreen-control">
+    <button
+      type="button"
+      id="fullscreen-toggle"
+      class="viz-btn"
+      aria-pressed="false"
+      aria-label="Enter fullscreen"
+      title="Enter fullscreen"
+      hidden
+    >
+      Fullscreen
+    </button>
+  </div>
   <div
     id="viz-controls"
     style="position: fixed; top: 12px; right: 12px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;"
@@ -19,28 +32,84 @@
     <h1>GameDudeSynth</h1>
     <p class="tagline">WAV Player</p>
     <nav>
-      <a href="./engine.html?v=321b638">← MIDI Export</a>
+      <a href="./engine.html?v=4bfb7ff">← MIDI Export</a>
     </nav>
   </header>
 
   <gameboy-console></gameboy-console>
 
   <p class="help">
-    Slide power ON · drag a .wav onto the Game Boy to play · ↑↓ select · A/START play · B stop · ←/→ skip ±15s while playing
+    Slide power ON · any `.wav` file can be dragged onto the Game Boy to play · ↑↓ select · A/START play or pause · B stop · ←/→ skip ±15s while playing
   </p>
 
-  <footer class="page-footer">
-    Console shell forked from
-    <a href="https://github.com/ManzDev/gameboycss" target="_blank" rel="noopener">gameboycss</a>
-    by ManzDev (ISC)
-    · Background visualizer
-    <a href="https://github.com/projectM-visualizer/projectm" target="_blank" rel="noopener">projectM</a>
-    (LGPL-2.1+) with
-    <a href="https://github.com/projectM-visualizer/presets-cream-of-the-crop" target="_blank" rel="noopener">community presets</a>
-  </footer>
-
   <!-- projectM must load before the player bundle (sets createProjectMModule + .data path). -->
-  <script src="./public/vendor/projectm/projectm.js?v=321b638"></script>
-  <script src="./public/gameboy-ui.iife.js?v=321b638"></script>
+  <script src="./public/vendor/projectm/projectm.js?v=4bfb7ff"></script>
+  <script src="./public/gameboy-ui.iife.js?v=4bfb7ff"></script>
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var btn = document.getElementById('fullscreen-toggle');
+      if (!btn) return;
+
+      function requestFs(el) {
+        if (el.requestFullscreen) return el.requestFullscreen();
+        if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+        if (el.mozRequestFullScreen) return el.mozRequestFullScreen();
+        if (el.msRequestFullscreen) return el.msRequestFullscreen();
+        return Promise.reject(new Error('Fullscreen not supported'));
+      }
+
+      function exitFs() {
+        if (document.exitFullscreen) return document.exitFullscreen();
+        if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+        if (document.mozCancelFullScreen) return document.mozCancelFullScreen();
+        if (document.msExitFullscreen) return document.msExitFullscreen();
+        return Promise.reject(new Error('Fullscreen not supported'));
+      }
+
+      function isFsActive() {
+        return !!(
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.mozFullScreenElement ||
+          document.msFullscreenElement
+        );
+      }
+
+      var canFullscreen =
+        root.requestFullscreen ||
+        root.webkitRequestFullscreen ||
+        root.mozRequestFullScreen ||
+        root.msRequestFullscreen;
+
+      if (!canFullscreen) return;
+
+      btn.hidden = false;
+
+      function syncUi() {
+        var active = isFsActive();
+        btn.textContent = active ? 'Exit fullscreen' : 'Fullscreen';
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        btn.setAttribute('aria-label', active ? 'Exit fullscreen' : 'Enter fullscreen');
+        btn.title = active ? 'Exit fullscreen' : 'Enter fullscreen';
+      }
+
+      btn.addEventListener('click', function () {
+        var p = isFsActive() ? exitFs() : requestFs(root);
+        if (p && typeof p.catch === 'function') {
+          p.catch(function () {
+            /* user gesture denied or policy block — leave UI as-is */
+          });
+        }
+      });
+
+      document.addEventListener('fullscreenchange', syncUi);
+      document.addEventListener('webkitfullscreenchange', syncUi);
+      document.addEventListener('mozfullscreenchange', syncUi);
+      document.addEventListener('MSFullscreenChange', syncUi);
+
+      syncUi();
+    })();
+  </script>
 </body>
 </html>
