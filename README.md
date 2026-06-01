@@ -45,4 +45,4 @@ Existing entries are never overwritten, so you can keep custom copy, tags, and d
 
 ## GameDudeSynth demo
 
-The `GameDudeSynth/` folder contains a static copy of the live demo, deployed from the [GameDudeSynth](https://github.com/Jmat50/GameDudeSynth) source repo. Edit that project in its own repository, not here.
+The `GameDudeSynth/` folder contains a static copy of the live demo, deployed from the [GameDudeSynth](https://github.com/Jmat50/GameDudeSynth) source repo. Edit that project in its own repository, not here. That deploy updates only `GameDudeSynth/` and must not remove `index.html` or add `.nojekyll`, or the Jekyll landing page will stop working.
