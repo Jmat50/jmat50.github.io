@@ -16,6 +16,11 @@
       "url": "./public/demos/Breaking Benjamin - Diary of Jane.wav"
     },
     {
+      "id": "Carly Rae Jepsen - Call Me Maybe",
+      "title": "Carly Rae Jepsen Call Me Maybe",
+      "url": "./public/demos/Carly Rae Jepsen - Call Me Maybe.wav"
+    },
+    {
       "id": "Coldplay - Clocks",
       "title": "Coldplay Clocks",
       "url": "./public/demos/Coldplay - Clocks.wav"
