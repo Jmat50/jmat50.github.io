@@ -2813,6 +2813,8 @@
       this.onPlayStateChange = null;
       this.audioTap = null;
       this._progressTimer = null;
+      this.currentSoundId = null;
+      this._paused = false;
     }
     get tracks() {
       return [...this.localTracks, ...this.manifestTracks];
@@ -2861,6 +2863,7 @@
         html5: false,
         volume: Howler.volume(),
         onplay: () => {
+          this._paused = false;
           this.audioTap?.start();
           this.onPlayStateChange?.(true);
         },
@@ -2874,11 +2877,17 @@
           this._handlePlaybackEnd();
         },
         onstop: () => {
+          this._paused = false;
+          this.audioTap?.stop();
+          this.onPlayStateChange?.(false);
+        },
+        onpause: () => {
+          this._paused = true;
           this.audioTap?.stop();
           this.onPlayStateChange?.(false);
         }
       });
-      this.currentHowl.play();
+      this.currentSoundId = this.currentHowl.play();
       this._progressTimer = setInterval(() => {
         if (!this.currentHowl?.playing()) return;
         const elapsed = this.currentHowl.seek() || 0;
@@ -2900,6 +2909,8 @@
     stop(fireEnd = true) {
       this._clearProgress();
       if (this.currentHowl) {
+        this._paused = false;
+        this.currentSoundId = null;
         this.audioTap?.stop();
         this.onPlayStateChange?.(false);
         this.currentHowl.stop();
@@ -2912,6 +2923,32 @@
     isPlaying() {
       return !!this.currentHowl?.playing();
     }
+    isPaused() {
+      return !!this.currentHowl && this._paused;
+    }
+    pause() {
+      if (!this.currentHowl?.playing()) return false;
+      if (this.currentSoundId != null) {
+        this.currentHowl.pause(this.currentSoundId);
+      } else {
+        this.currentHowl.pause();
+      }
+      return true;
+    }
+    resume() {
+      if (!this.currentHowl || !this._paused) return false;
+      if (this.currentSoundId != null) {
+        this.currentHowl.play(this.currentSoundId);
+      } else {
+        this.currentSoundId = this.currentHowl.play();
+      }
+      return true;
+    }
+    togglePause() {
+      if (this.isPlaying()) return this.pause();
+      if (this.isPaused()) return this.resume();
+      return false;
+    }
     getCurrentTrack() {
       if (this.currentIndex < 0) return null;
       return this.tracks[this.currentIndex] ?? null;
@@ -2923,6 +2960,8 @@
     }
     _handlePlaybackEnd() {
       this._clearProgress();
+      this._paused = false;
+      this.currentSoundId = null;
       this.audioTap?.stop();
       this.onPlayStateChange?.(false);
       this.currentHowl = null;
@@ -3054,6 +3093,9 @@
       if (action === "a" || action === "start") {
         if (this.scene === "menu" && this.tracks.length > 0) {
           this._playCurrent();
+        } else if (this.scene === "playing") {
+          this.catalog.togglePause();
+          this.requestUpdate();
         }
         return;
       }
@@ -3228,16 +3270,17 @@
       if (this.scene === "playing") {
         const track = this.catalog.getCurrentTrack();
         const pct = this.duration > 0 ? Math.min(100, this.elapsed / this.duration * 100) : 0;
+        const isPaused = this.catalog.isPaused();
         return b2`
         <div class="viewport">
           <div class="title">NOW PLAYING</div>
           <div class="rule"></div>
           <div class="playing">
             <div class="track-name">${track?.title ?? "Unknown"}</div>
-            <div class="now ${this.showBlink ? "" : "blink-hidden"}">♪ PLAYING</div>
+            <div class="now ${this.showBlink || isPaused ? "" : "blink-hidden"}">${isPaused ? "\u0965 PAUSED" : "\u266A PLAYING"}</div>
             <div class="time">${this._formatTime(this.elapsed)} / ${this._formatTime(this.duration)}</div>
             <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
-            <div class="hint">B = STOP · ← -15s · → +15s</div>
+            <div class="hint">A/START = PAUSE/RESUME · B = STOP · ← -15s · → +15s</div>
           </div>
         </div>
       `;
@@ -3955,6 +3998,7 @@
       this._presetLastSwitchMs = 0;
       this._presetQueueDir = 0;
       this._presetBusy = false;
+      this._presetLabelEl = null;
       this._wasmBase = vendorBaseUrl();
       this._scriptUrl = new URL("projectm.js", this._wasmBase).href;
       document.documentElement.style.setProperty("--viz-opacity", String(this.opacity));
@@ -4047,6 +4091,9 @@
       this._presetButtons = [prevBtn, nextBtn];
       this._setPresetButtonsDisabled(true);
       presetRow.append(prevBtn, nextBtn);
+      this._presetLabelEl = document.createElement("p");
+      this._presetLabelEl.className = "viz-preset-label";
+      this._presetLabelEl.textContent = "Preset \u2014";
       const opacityRow = document.createElement("label");
       opacityRow.className = "viz-controls-row";
       opacityRow.innerHTML = '<span class="viz-label">Dim</span>';
@@ -4066,7 +4113,7 @@
       this._errorEl = document.createElement("p");
       this._errorEl.className = "viz-error";
       this._errorEl.hidden = true;
-      this.controlsEl.append(toggleWrap, presetRow, opacityRow, this._errorEl);
+      this.controlsEl.append(toggleWrap, presetRow, this._presetLabelEl, opacityRow, this._errorEl);
       if (this.enabled) {
         this.enable().catch((err) => this._setError(err.message));
       }
@@ -4136,6 +4183,7 @@
         }
         this._resize();
         this._setPresetButtonsDisabled(false);
+        this._updatePresetLabel();
         if (this.enabled && this.audioActive) {
           this._startLoop();
         }
@@ -4179,6 +4227,25 @@
         this._raf = null;
       }
     }
+    _friendlyPresetName(path) {
+      if (!path) return "Unknown";
+      const base = path.split("/").pop() ?? path;
+      const match = base.match(/^preset_\d{3}_(.+)\.milk$/i);
+      return match ? match[1] : base.replace(/\.milk$/i, "");
+    }
+    _updatePresetLabel() {
+      if (!this._presetLabelEl || !this._module) return;
+      try {
+        const count = this._module.ccall("pm_get_preset_count", "number", [], []);
+        const index = this._module.ccall("pm_get_preset_index", "number", [], []);
+        const path = this._module.ccall("pm_get_preset_path", "string", ["number"], [index]);
+        const name = this._friendlyPresetName(path);
+        const slot = count > 0 ? `${index + 1}/${count}` : "\u2014";
+        this._presetLabelEl.textContent = `Preset ${slot}: ${name}`;
+      } catch {
+        this._presetLabelEl.textContent = "Preset \u2014";
+      }
+    }
     _changePreset(direction) {
       if (!this._module || !this._ready || !this.enabled) return;
       const now = performance.now();
@@ -4217,6 +4284,7 @@
           this._presetUnlockTimer = null;
           this._presetBusy = false;
           this._setPresetButtonsDisabled(!this.enabled);
+          this._updatePresetLabel();
           if (!this.enabled) return;
           if (shouldResume) {
             requestAnimationFrame(() => {
