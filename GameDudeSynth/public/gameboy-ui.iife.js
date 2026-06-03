@@ -4008,6 +4008,9 @@
       this._scriptUrl = new URL("projectm.js", this._wasmBase).href;
       document.documentElement.style.setProperty("--viz-opacity", String(this.opacity));
       this._buildControls();
+      this._loadPresetManifest().catch((err) => {
+        console.warn("[projectM] preset manifest load failed", err);
+      });
       this._applyEnabledState(false);
       if (!supportsWebGL2()) {
         this._setError("WebGL2 is required for Milkdrop visuals.");
@@ -4097,6 +4100,8 @@
       this._setPresetButtonsDisabled(true);
       const vibeSelect = document.createElement("select");
       vibeSelect.className = "viz-vibe-select";
+      vibeSelect.disabled = true;
+      vibeSelect.appendChild(new Option("Loading Vibes...", "__loading__"));
       const vibeLabel = document.createElement("span");
       vibeLabel.className = "viz-label";
       vibeLabel.textContent = "Vibe";
@@ -4172,9 +4177,11 @@
             this._buildVibeOptions(entries);
             return;
           }
-        } catch {
+        } catch (err) {
+          console.warn("[projectM] failed to load preset manifest", err);
         }
       }
+      this._buildVibeOptions([]);
     }
     _buildVibeOptions(entries) {
       const groups = /* @__PURE__ */ new Map();
@@ -4199,7 +4206,12 @@
         localStorage.setItem("gamedude.vibe", sel.value);
       });
       const saved = localStorage.getItem("gamedude.vibe");
-      if (saved) sel.value = saved;
+      if (saved && [...sel.options].some((opt) => opt.value === saved)) {
+        sel.value = saved;
+      } else {
+        sel.value = "__all__";
+      }
+      sel.disabled = false;
     }
     async _shufflePreset() {
       if (!this._module) return;
