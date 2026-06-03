@@ -1,8 +1,9 @@
 {
-  "builtAt": "2026-06-03T17:06:37.459Z",
+  "builtAt": "2026-06-03T19:38:32.579Z",
   "projectm": {
     "projectm.js": 280925,
     "projectm.wasm": 1612487,
-    "projectm.data": 4979951
+    "projectm.data": 4979951,
+    "bundled-presets.json": 1856
   }
 }
