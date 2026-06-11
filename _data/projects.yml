@@ -7,6 +7,16 @@
     - audio
     - web
 
+- name: extreme-checkers
+  description: 3D photorealistic checkers with custom rules, bomb hazards, online multiplayer, and AI — built with boardgame.io and React Three Fiber.
+  language: TypeScript
+  repo: https://github.com/Jmat50/extreme-checkers
+  demo: /extreme-checkers/
+  tags:
+    - game
+    - 3d
+    - web
+
 - name: IPTV-DVR
   description: Lightweight utility to record live streams from M3U playlists or direct URLs using FFmpeg stream copy. Schedule recurring recordings with Windows Task Scheduler.
   language: Python

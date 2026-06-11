@@ -39,7 +39,7 @@ The [Sync projects](.github/workflows/sync-projects.yml) workflow runs every 6 h
 - `description` from the repo (or a short fallback)
 - `language` from GitHub
 - `tags` from repo topics, or language + `open-source`
-- `demo` from the repo homepage, or known overrides like GameDudeSynth
+- `demo` from the repo homepage, or known overrides like GameDudeSynth and extreme-checkers
 
 Existing entries are never overwritten, so you can keep custom copy, tags, and demo links. To run it immediately: **Actions → Sync projects → Run workflow**.
 

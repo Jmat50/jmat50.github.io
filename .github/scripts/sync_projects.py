@@ -21,6 +21,7 @@ EXCLUDE_REPOS = {"jmat50.github.io"}
 # Known live demos that are not stored in the repo homepage field.
 DEMO_OVERRIDES = {
     "GameDudeSynth": "/GameDudeSynth/gamedude-player.html",
+    "extreme-checkers": "/extreme-checkers/",
 }
 
 
