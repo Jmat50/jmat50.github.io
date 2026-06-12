@@ -1,8 +1,9 @@
 {
-  "builtAt": "2026-06-10T20:10:49.839Z",
+  "builtAt": "2026-06-12T15:37:32.056Z",
   "butterchurn": {
     "butterchurn.iife.js": 243686,
-    "preset-catalog.json": 13253
+    "preset-catalog.json": 156221,
+    "preset-catalog-meta.json": 643
   },
-  "presetCount": 40
+  "presetCount": 502
 }
