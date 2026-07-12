@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PROJECTS_FILE = ROOT / "_data" / "projects.yml"
 GITHUB_USER = os.environ.get("GITHUB_USER", "jmat50")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
-EXCLUDE_REPOS = {"jmat50.github.io"}
+EXCLUDE_REPOS = {"jmat50.github.io", "skate3-browser"}
 
 # Known live demos that are not stored in the repo homepage field.
 DEMO_OVERRIDES = {
