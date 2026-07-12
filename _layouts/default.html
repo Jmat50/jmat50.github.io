@@ -11,7 +11,28 @@
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 </head>
 <body>
-  <div class="page-bg" aria-hidden="true"></div>
+  <div class="page-bg" aria-hidden="true">
+    <bb-liquid-lines
+      bg-colors="#100000, #100000"
+      bg-angle="0"
+      line-count="12"
+      line-amplitude="50"
+      line-frequency="0.006"
+      speed="0.15"
+      line-spacing="60"
+      line-width="12"
+      line-hue-start="0"
+      line-hue-end="30"
+      line-saturation="100"
+      line-offset-step="0.2"
+      wiggle-amplitude="10"
+      wiggle-speed="0.1"
+      trail-opacity="0.1"
+    ></bb-liquid-lines>
+  </div>
+  <script type="module">
+    import { BbLiquidLines } from "https://esm.sh/beautiful-backgrounds";
+  </script>
 
   <header class="site-header">
     <div class="container header-inner">
