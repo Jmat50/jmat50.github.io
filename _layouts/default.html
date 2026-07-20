@@ -34,55 +34,57 @@
     import { BbLiquidLines } from "https://esm.sh/beautiful-backgrounds";
 
     // Cycle wave colors only — leave amplitude, spacing, speed, etc. alone.
-    // Red → blue → green → red; 15s per color, smooth handoff between phases.
+    // Red → blue → green → red; continuously lerp to the next color over each 15s phase.
     const lines = document.querySelector("bb-liquid-lines");
     const pageBg = document.querySelector(".page-bg");
     const PHASE_MS = 15_000;
-    const TRANSITION_MS = 2_500;
     const colors = [
-      { hueStart: 0, hueEnd: 30, bg: "#100000" },   // red / orange
-      { hueStart: 210, hueEnd: 250, bg: "#000010" }, // blue
-      { hueStart: 110, hueEnd: 150, bg: "#001000" }, // green
+      { hueStart: 0, hueEnd: 30, bg: [0x10, 0x00, 0x00] },   // red / orange
+      { hueStart: 210, hueEnd: 250, bg: [0x00, 0x00, 0x10] }, // blue
+      { hueStart: 110, hueEnd: 150, bg: [0x00, 0x10, 0x00] }, // green
     ];
 
     function lerp(a, b, t) {
       return a + (b - a) * t;
     }
 
-    function easeInOut(t) {
-      return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    function rgbToHex(r, g, b) {
+      const toHex = (n) => Math.round(n).toString(16).padStart(2, "0");
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     }
 
     function applyColor(c) {
+      const bg = rgbToHex(c.bg[0], c.bg[1], c.bg[2]);
       lines.setAttribute("line-hue-start", String(Math.round(c.hueStart)));
       lines.setAttribute("line-hue-end", String(Math.round(c.hueEnd)));
-      lines.setAttribute("bg-colors", `${c.bg}, ${c.bg}`);
-      if (pageBg) pageBg.style.background = c.bg;
+      lines.setAttribute("bg-colors", `${bg}, ${bg}`);
+      if (pageBg) pageBg.style.background = bg;
     }
-
-    applyColor(colors[0]);
 
     let phaseIndex = 0;
     let phaseStarted = performance.now();
 
     function tick(now) {
-      const elapsed = now - phaseStarted;
-      const nextIndex = (phaseIndex + 1) % colors.length;
-      const from = colors[phaseIndex];
-      const to = colors[nextIndex];
-
-      if (elapsed >= PHASE_MS - TRANSITION_MS && elapsed < PHASE_MS) {
-        const t = easeInOut((elapsed - (PHASE_MS - TRANSITION_MS)) / TRANSITION_MS);
-        applyColor({
-          hueStart: lerp(from.hueStart, to.hueStart, t),
-          hueEnd: lerp(from.hueEnd, to.hueEnd, t),
-          bg: t < 0.5 ? from.bg : to.bg,
-        });
-      } else if (elapsed >= PHASE_MS) {
-        phaseIndex = nextIndex;
-        phaseStarted = now;
-        applyColor(colors[phaseIndex]);
+      let elapsed = now - phaseStarted;
+      while (elapsed >= PHASE_MS) {
+        phaseIndex = (phaseIndex + 1) % colors.length;
+        phaseStarted += PHASE_MS;
+        elapsed = now - phaseStarted;
       }
+
+      const from = colors[phaseIndex];
+      const to = colors[(phaseIndex + 1) % colors.length];
+      const t = elapsed / PHASE_MS;
+
+      applyColor({
+        hueStart: lerp(from.hueStart, to.hueStart, t),
+        hueEnd: lerp(from.hueEnd, to.hueEnd, t),
+        bg: [
+          lerp(from.bg[0], to.bg[0], t),
+          lerp(from.bg[1], to.bg[1], t),
+          lerp(from.bg[2], to.bg[2], t),
+        ],
+      });
 
       requestAnimationFrame(tick);
     }
