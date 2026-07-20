@@ -34,18 +34,24 @@
     import { BbLiquidLines } from "https://esm.sh/beautiful-backgrounds";
 
     // Cycle wave colors only — leave amplitude, spacing, speed, etc. alone.
-    // Red → blue → green → red; continuously lerp to the next color over each 15s phase.
+    // Red → green → blue → red; continuously lerp to the next color over each 15s phase.
     const lines = document.querySelector("bb-liquid-lines");
     const pageBg = document.querySelector(".page-bg");
     const PHASE_MS = 15_000;
     const colors = [
       { hueStart: 0, hueEnd: 30, bg: [0x10, 0x00, 0x00] },   // red / orange
-      { hueStart: 210, hueEnd: 250, bg: [0x00, 0x00, 0x10] }, // blue
       { hueStart: 110, hueEnd: 150, bg: [0x00, 0x10, 0x00] }, // green
+      { hueStart: 210, hueEnd: 250, bg: [0x00, 0x00, 0x10] }, // blue
     ];
 
     function lerp(a, b, t) {
       return a + (b - a) * t;
+    }
+
+    // Shortest-path hue lerp so blue → red goes via magenta, not green.
+    function lerpHue(a, b, t) {
+      const delta = ((b - a + 540) % 360) - 180;
+      return (a + delta * t + 360) % 360;
     }
 
     function rgbToHex(r, g, b) {
@@ -77,8 +83,8 @@
       const t = elapsed / PHASE_MS;
 
       applyColor({
-        hueStart: lerp(from.hueStart, to.hueStart, t),
-        hueEnd: lerp(from.hueEnd, to.hueEnd, t),
+        hueStart: lerpHue(from.hueStart, to.hueStart, t),
+        hueEnd: lerpHue(from.hueEnd, to.hueEnd, t),
         bg: [
           lerp(from.bg[0], to.bg[0], t),
           lerp(from.bg[1], to.bg[1], t),
