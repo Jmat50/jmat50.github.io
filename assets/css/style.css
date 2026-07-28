@@ -136,18 +136,11 @@ a:hover {
 }
 
 .hero h1 {
-  margin: 0 0 1rem;
+  margin: 0 0 2rem;
   font-size: clamp(2.4rem, 6vw, 3.6rem);
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.03em;
-}
-
-.hero-lead {
-  max-width: 38rem;
-  margin: 0 0 2rem;
-  font-size: 1.15rem;
-  color: var(--text-muted);
 }
 
 .hero-actions {
@@ -211,6 +204,48 @@ a:hover {
 .btn-sm {
   padding: 0.5rem 0.9rem;
   font-size: 0.875rem;
+}
+
+/* Rainbow fill — https://ui-buttons.web.app/rainbow-fill */
+.btn-rainbow {
+  -webkit-tap-highlight-color: transparent;
+  background: linear-gradient(90deg, blue, red);
+  border-radius: 999px;
+  box-sizing: border-box;
+  color: #000;
+  cursor: pointer;
+  display: inline-block;
+  font-family: inherit;
+  font-size: 100%;
+  font-weight: 900;
+  line-height: 1.5;
+  margin: 0;
+  overflow: hidden;
+  padding: 5px;
+  position: relative;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: none;
+}
+
+.btn-rainbow span {
+  background: #1e293b;
+  border-radius: 999px;
+  color: #fff;
+  display: block;
+  padding: 1.8rem 5rem;
+  text-align: center;
+  transition: background 0.3s;
+}
+
+.btn-rainbow:hover,
+.btn-rainbow:focus-visible {
+  color: #000;
+}
+
+.btn-rainbow:hover span,
+.btn-rainbow:focus-visible span {
+  background: none;
 }
 
 /* Projects section */
