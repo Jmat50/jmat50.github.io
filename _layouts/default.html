@@ -35,23 +35,30 @@
 
     // Cycle wave colors only — leave amplitude, spacing, speed, etc. alone.
     // Red → green → blue → red; continuously lerp to the next color over each 15s phase.
+    //
+    // Important: bb-liquid-lines colors lines with
+    //   hue = start + (end - start) * lineProgress
+    // so start/end must stay a narrow adjacent span. Never wrap them independently
+    // (that briefly makes end < start across 0° and paints a full rainbow).
     const lines = document.querySelector("bb-liquid-lines");
     const pageBg = document.querySelector(".page-bg");
     const PHASE_MS = 15_000;
+    const HUE_SPAN = 30;
     const colors = [
-      { hueStart: 0, hueEnd: 30, bg: [0x10, 0x00, 0x00] },   // red / orange
-      { hueStart: 110, hueEnd: 150, bg: [0x00, 0x10, 0x00] }, // green
-      { hueStart: 210, hueEnd: 250, bg: [0x00, 0x00, 0x10] }, // blue
+      { hue: 0, bg: [0x10, 0x00, 0x00] },   // red
+      { hue: 120, bg: [0x00, 0x10, 0x00] }, // green
+      { hue: 240, bg: [0x00, 0x00, 0x10] }, // blue
     ];
 
     function lerp(a, b, t) {
       return a + (b - a) * t;
     }
 
-    // Shortest-path hue lerp so blue → red goes via magenta, not green.
-    function lerpHue(a, b, t) {
-      const delta = ((b - a + 540) % 360) - 180;
-      return (a + delta * t + 360) % 360;
+    // Forward around the wheel; leave result unwrapped so hue+span stays contiguous.
+    function lerpHueForward(a, b, t) {
+      let delta = b - a;
+      if (delta < 0) delta += 360;
+      return a + delta * t;
     }
 
     function rgbToHex(r, g, b) {
@@ -59,11 +66,15 @@
       return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     }
 
-    function applyColor(c) {
-      const bg = rgbToHex(c.bg[0], c.bg[1], c.bg[2]);
-      lines.setAttribute("line-hue-start", String(Math.round(c.hueStart)));
-      lines.setAttribute("line-hue-end", String(Math.round(c.hueEnd)));
-      lines.setAttribute("bg-colors", `${bg}, ${bg}`);
+    function applyColor(hue, bgRgb) {
+      const hueStart = hue;
+      const hueEnd = hue + HUE_SPAN;
+      const bg = rgbToHex(bgRgb[0], bgRgb[1], bgRgb[2]);
+
+      // Set properties directly so start/end update together before the next paint.
+      lines.lineHueStart = hueStart;
+      lines.lineHueEnd = hueEnd;
+      lines.bgColors = [bg, bg];
       if (pageBg) pageBg.style.background = bg;
     }
 
@@ -82,15 +93,11 @@
       const to = colors[(phaseIndex + 1) % colors.length];
       const t = elapsed / PHASE_MS;
 
-      applyColor({
-        hueStart: lerpHue(from.hueStart, to.hueStart, t),
-        hueEnd: lerpHue(from.hueEnd, to.hueEnd, t),
-        bg: [
-          lerp(from.bg[0], to.bg[0], t),
-          lerp(from.bg[1], to.bg[1], t),
-          lerp(from.bg[2], to.bg[2], t),
-        ],
-      });
+      applyColor(lerpHueForward(from.hue, to.hue, t), [
+        lerp(from.bg[0], to.bg[0], t),
+        lerp(from.bg[1], to.bg[1], t),
+        lerp(from.bg[2], to.bg[2], t),
+      ]);
 
       requestAnimationFrame(tick);
     }
