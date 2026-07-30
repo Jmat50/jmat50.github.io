@@ -22,6 +22,7 @@ EXCLUDE_REPOS = {"jmat50.github.io", "skate3-browser"}
 DEMO_OVERRIDES = {
     "GameDudeSynth": "/GameDudeSynth/gamedude-player.html",
     "extreme-checkers": "/extreme-checkers/",
+    "simlish": "/simlish/",
 }
 
 
