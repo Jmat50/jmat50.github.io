@@ -349,31 +349,6 @@ a:hover {
   margin-top: auto;
 }
 
-/* About */
-.about {
-  padding: 3rem 0 5rem;
-  border-top: 1px solid var(--border);
-}
-
-.about h2 {
-  margin: 0 0 0.75rem;
-  font-size: 1.25rem;
-}
-
-.about p {
-  max-width: 42rem;
-  margin: 0;
-  color: var(--text-muted);
-}
-
-.about code {
-  font-family: var(--mono);
-  font-size: 0.88em;
-  padding: 0.15rem 0.4rem;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
-}
-
 /* Footer */
 .site-footer {
   padding: 1.5rem 0 2rem;
