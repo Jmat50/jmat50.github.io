@@ -324,24 +324,6 @@ a:hover {
   color: var(--text-muted);
 }
 
-.project-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0 0 1.25rem;
-  padding: 0;
-  list-style: none;
-}
-
-.project-tags li {
-  padding: 0.2rem 0.55rem;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-}
-
 .project-actions {
   display: flex;
   flex-wrap: wrap;

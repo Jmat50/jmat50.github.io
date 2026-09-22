@@ -34,14 +34,6 @@ description: Open-source tools, experiments, and live demos by Jmat50.
 
         <p class="project-desc">{{ project.description }}</p>
 
-        {% if project.tags %}
-        <ul class="project-tags">
-          {% for tag in project.tags %}
-          <li>{{ tag }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-
         <div class="project-actions">
           <a class="btn btn-sm btn-outline" href="{{ project.repo }}" target="_blank" rel="noopener noreferrer">
             Source
