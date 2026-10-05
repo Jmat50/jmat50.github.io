@@ -292,6 +292,7 @@ a:hover {
 .lang-python { color: #5ba4e5; background: rgba(55, 118, 171, 0.18); }
 .lang-go { color: #00add8; background: rgba(0, 173, 216, 0.15); }
 .lang-html { color: #e34f26; background: rgba(227, 79, 38, 0.15); }
+.lang-webassembly { color: #8f7cff; background: rgba(101, 79, 240, 0.18); }
 
 .live-badge {
   padding: 0.25rem 0.55rem;

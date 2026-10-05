@@ -29,15 +29,21 @@ description: Open-source tools, experiments, and live demos by Jmat50.
         </div>
 
         <h3 class="project-name">
+          {% if project.repo %}
           <a href="{{ project.repo }}" target="_blank" rel="noopener noreferrer">{{ project.name }}</a>
+          {% else %}
+          <a href="{{ project.demo | relative_url }}">{{ project.name }}</a>
+          {% endif %}
         </h3>
 
         <p class="project-desc">{{ project.description }}</p>
 
         <div class="project-actions">
+          {% if project.repo %}
           <a class="btn btn-sm btn-outline" href="{{ project.repo }}" target="_blank" rel="noopener noreferrer">
             Source
           </a>
+          {% endif %}
           {% if project.demo %}
           <a class="btn btn-sm btn-primary" href="{{ project.demo | relative_url }}">
             Try demo

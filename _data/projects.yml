@@ -73,3 +73,13 @@
     - accessibility
     - tts
     - windows
+
+- name: OpenRCT2 Web
+  description: OpenRCT2 compiled to WebAssembly and streamed in the browser,
+    with RollerCoaster Tycoon 1 and 2 content and a hosted multiplayer server.
+  language: WebAssembly
+  demo: https://orct2-jbm7190.westus2.cloudapp.azure.com/
+  tags:
+    - game
+    - wasm
+    - multiplayer
