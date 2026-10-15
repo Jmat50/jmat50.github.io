@@ -1,3 +1,15 @@
+- name: birddraw
+  description: Procedural perched-bird line drawings for pen plotters, with an
+    "alive" idle animation (breathing, head turns, blinks, wing flaps) and
+    SVG, GIF and plotter exports. Zero dependencies.
+  language: JavaScript
+  repo: https://github.com/Jmat50/birddraw
+  demo: /birddraw/
+  tags:
+    - generative
+    - plotter
+    - web
+
 - name: GameDudeSynth
   description: Browser-based synth and MIDI export engine with retro
     netstalgia visuals and a live WAV player demo.
