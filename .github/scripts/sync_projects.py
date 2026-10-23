@@ -134,7 +134,11 @@ def save_projects(projects: list[dict]) -> None:
 
 def sync_projects() -> bool:
     existing = load_projects()
-    known_repos = {normalize_repo_url(project["repo"]) for project in existing}
+    known_repos = {
+        normalize_repo_url(project["repo"])
+        for project in existing
+        if project.get("repo")
+    }
 
     try:
         remote_repos = fetch_public_repos()
